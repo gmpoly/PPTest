@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  aas-env:
+    image: eclipsebasyx/aas-environment:2.0.0-SNAPSHOT
+    container_name: aas-env
+    environment:
+      - SERVER_PORT=8081
+      # Lokale GUI auf http://localhost:3000 darf aufs Backend zugreifen
+      - BASYX_CORS_ALLOWED_ORIGINS=http://localhost:3000
+      - BASYX_CORS_ALLOWED_METHODS=GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+
+  aas-web-ui:
+    image: eclipsebasyx/aas-gui
+    container_name: aas-web-ui
+    ports:
+      - "3000:3000"
+    environment:
+      # Aus Browsersicht läuft das Backend auch unter localhost
+      AAS_REPO_PATH: "http://localhost:8081/shells"
+      SUBMODEL_REPO_PATH: "http://localhost:8081/submodels"
+      CD_REPO_PATH: "http://localhost:8081/concept-descriptions"
+    depends_on:
+      - aas-env
+    restart: unless-stopped
+
